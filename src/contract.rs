@@ -272,7 +272,6 @@ mod tests {
             .unwrap(),
         };
 
-
         let info = message_info(&cw20_contract, &[]);
         let msg = ExecuteMsg::Receive(cw20_msg);
         let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();

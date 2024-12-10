@@ -34,4 +34,3 @@ pub enum ReceiveMsg {
 pub enum QueryMsg {}
 
 // We define a custom struct for each query response
-
