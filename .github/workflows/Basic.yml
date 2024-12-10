@@ -17,8 +17,8 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.60.0
-          target: wasm32-unknown-unknown
+          toolchain: 1.83.0
+          target: wasm32-unknown-unknownc
           override: true
 
       - name: Run unit tests
@@ -48,7 +48,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.60.0
+          toolchain: 1.83.0
           override: true
           components: rustfmt, clippy
 
