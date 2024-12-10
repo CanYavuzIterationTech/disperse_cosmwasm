@@ -1,85 +1,135 @@
-# CosmWasm Starter Pack
+# Disperse CosmWasm Contract
 
-This is a template to build smart contracts in Rust to run inside a
-[Cosmos SDK](https://github.com/cosmos/cosmos-sdk) module on all chains that enable it.
-To understand the framework better, please read the overview in the
-[cosmwasm repo](https://github.com/CosmWasm/cosmwasm/blob/master/README.md),
-and dig into the [cosmwasm docs](https://www.cosmwasm.com).
-This assumes you understand the theory and just want to get coding.
+A CosmWasm smart contract that enables efficient distribution of native and CW20 tokens to multiple recipients in a single transaction. This contract is particularly useful for batch payments, airdrops, or any scenario requiring multiple token transfers.
 
-## Creating a new repo from template
+## Features
 
-Assuming you have a recent version of Rust and Cargo installed
-(via [rustup](https://rustup.rs/)),
-then the following should get you a new repo to start a contract:
+- Disperse native tokens (e.g., ATOM, OSMO) to multiple recipients
+- Disperse CW20 tokens to multiple recipients
+- Validation of total amounts and recipient data
+- Gas-efficient batch processing
 
-Install [cargo-generate](https://github.com/ashleygwilliams/cargo-generate) and cargo-run-script.
-Unless you did that before, run this line now:
+## Prerequisites
 
-```sh
-cargo install cargo-generate --features vendored-openssl
-cargo install cargo-run-script
-```
+- Rust 1.60.0 or later
+- [rustup](https://rustup.rs/)
+- wasm32-unknown-unknown target
+- [cargo-generate](https://github.com/ashleygwilliams/cargo-generate)
 
-Now, use it to create your new contract.
-Go to the folder in which you want to place it and run:
+## Installation
 
-**Latest**
+First, make sure you have Rust and the wasm32 target installed:
 
 ```sh
-cargo generate --git https://github.com/CosmWasm/cw-template.git --name PROJECT_NAME
+rustup default stable
+rustup target add wasm32-unknown-unknown
 ```
 
-For cloning minimal code repo:
+## Building
+
+To build the contract:
 
 ```sh
-cargo generate --git https://github.com/CosmWasm/cw-template.git --name PROJECT_NAME -d minimal=true
+cargo wasm
 ```
 
-You will now have a new folder called `PROJECT_NAME` (I hope you changed that to something else)
-containing a simple working contract and build system that you can customize.
-
-## Create a Repo
-
-After generating, you have a initialized local git repo, but no commits, and no remote.
-Go to a server (eg. github) and create a new upstream repo (called `YOUR-GIT-URL` below).
-Then run the following:
+To run tests:
 
 ```sh
-# this is needed to create a valid Cargo.lock file (see below)
-cargo check
-git branch -M main
-git add .
-git commit -m 'Initial Commit'
-git remote add origin YOUR-GIT-URL
-git push -u origin main
+cargo unit-test
+cargo integration-test
 ```
 
-## CI Support
+To generate schema:
 
-We have template configurations for both [GitHub Actions](.github/workflows/Basic.yml)
-and [Circle CI](.circleci/config.yml) in the generated project, so you can
-get up and running with CI right away.
+```sh
+cargo schema
+```
 
-One note is that the CI runs all `cargo` commands
-with `--locked` to ensure it uses the exact same versions as you have locally. This also means
-you must have an up-to-date `Cargo.lock` file, which is not auto-generated.
-The first time you set up the project (or after adding any dep), you should ensure the
-`Cargo.lock` file is updated, so the CI will test properly. This can be done simply by
-running `cargo check` or `cargo unit-test`.
+## Usage
 
-## Using your project
+### Native Token Disperse
 
-Once you have your custom repo, you should check out [Developing](./Developing.md) to explain
-more on how to run tests and develop code. Or go through the
-[online tutorial](https://docs.cosmwasm.com/) to get a better feel
-of how to develop.
+To disperse native tokens, send a message with the following format:
 
-[Publishing](./Publishing.md) contains useful information on how to publish your contract
-to the world, once you are ready to deploy it on a running blockchain. And
-[Importing](./Importing.md) contains information about pulling in other contracts or crates
-that have been published.
+```json
+{
+  "disperse": {
+    "recipients": [
+      {
+        "address": "recipient1_address",
+        "amount": [
+          {
+            "denom": "uatom",
+            "amount": "1000000"
+          }
+        ]
+      },
+      {
+        "address": "recipient2_address",
+        "amount": [
+          {
+            "denom": "uatom",
+            "amount": "2000000"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
-Please replace this README file with information about your specific project. You can keep
-the `Developing.md` and `Publishing.md` files as useful references, but please set some
-proper description in the README.
+### CW20 Token Disperse
+
+For CW20 tokens, first approve the disperse contract to spend your tokens, then send them with the following message format:
+
+```json
+{
+  "send": {
+    "contract": "disperse_contract_address",
+    "amount": "3000000",
+    "msg": {
+      "disperse_cw20": {
+        "recipients": [
+          {
+            "address": "recipient1_address",
+            "amount": "1000000"
+          },
+          {
+            "address": "recipient2_address",
+            "amount": "2000000"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+## Testing
+
+The contract includes both unit tests and integration tests. The integration tests demonstrate how to use the contract with CW20 tokens in a multi-contract environment.
+
+To run all tests:
+
+```sh
+cargo test
+```
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Security
+
+This contract has not been audited and is provided as-is. Use at your own risk.
